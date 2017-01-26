@@ -45,7 +45,7 @@ class Calibrate(object):
                 self.draw_and_save(img, nx, ny, corners, ret, write_path=write_path)
         # Use cv2's calibrateCamera to calibrate all the given points
         ret, mtx, dist, rvecs, tvecs = cv2.calibrateCamera(objpoints, imgpoints, gray.shape[::-1], None, None)
-        print('MTX={0} \n DIST={1}'.format(mtx, dist))
+        print('MTX={0} \n DIST={1}'.format(mtx.tolist(), dist.tolist()))
         if self.save_images:
             for img_path in self.img_paths:
                 fname = os.path.basename(img_path)

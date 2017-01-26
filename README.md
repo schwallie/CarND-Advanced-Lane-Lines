@@ -2,8 +2,8 @@
 
 The goals / steps of this project are the following:
 
-* Compute the camera calibration matrix and distortion coefficients given a set of chessboard images.
-* Apply a distortion correction to raw images.
+[X] Compute the camera calibration matrix and distortion coefficients given a set of chessboard images.
+[X] Apply a distortion correction to raw images.
 * Use color transforms, gradients, etc., to create a thresholded binary image.
 * Apply a perspective transform to rectify binary image ("birds-eye view").
 * Detect lane pixels and fit to find the lane boundary.
@@ -15,8 +15,8 @@ The goals / steps of this project are the following:
 
 [checkerboard]: ./camera_cal_final/checkerboard_undistorted.png "Checkerboard"
 [undistorted]:  ./camera_cal_final/test_undistorted_plot.png "Undistorted"
-[image2]: ./test_images/test1.jpg "Road Transformed"
-[image3]: ./examples/binary_combo_example.jpg "Binary Example"
+[transformed]: ./examples/persp_transform.png "Road Transformed"
+[thresh]: ./examples/threshold.png "Thresholded Image"
 [image4]: ./examples/warped_straight_lines.jpg "Warp Example"
 [image5]: ./examples/color_fit_lines.jpg "Fit Visual"
 [image6]: ./examples/example_output.jpg "Output"
@@ -41,40 +41,45 @@ To demonstrate this step, I will describe how I apply the distortion correction 
 
 ![Undistorted v Distorted][undistorted]
 
-####2. Describe how (and identify where in your code) you used color transforms, gradients or other methods to create a thresholded binary image.  Provide an example of a binary image result.
-I used a combination of color and gradient thresholds to generate a binary image (thresholding steps at lines # through # in `another_file.py`).  Here's an example of my output for this step.  (note: this is not actually from one of the test images)
+####2. Describe how (and identify where in your code) you performed a perspective transform and provide an example of a transformed image.
 
-![alt text][image3]
+The code for my perspective transform includes a function called `get_warped_perspective()`, which appears in lines 7-14 in the file `persp_transform.py` (persp_transform.py)  The `get_warped_perspective()` function takes as inputs an image (`img`).  I chose the hardcode the source and destination points in the following manner:
 
-####3. Describe how (and identify where in your code) you performed a perspective transform and provide an example of a transformed image.
-
-The code for my perspective transform includes a function called `warper()`, which appears in lines 1 through 8 in the file `example.py` (output_images/examples/example.py) (or, for example, in the 3rd code cell of the IPython notebook).  The `warper()` function takes as inputs an image (`img`), as well as source (`src`) and destination (`dst`) points.  I chose the hardcode the source and destination points in the following manner:
-
+src(w=width, h=height):
 ```
-src = np.float32(
-    [[(img_size[0] / 2) - 55, img_size[1] / 2 + 100],
-    [((img_size[0] / 6) - 10), img_size[1]],
-    [(img_size[0] * 5 / 6) + 60, img_size[1]],
-    [(img_size[0] / 2 + 55), img_size[1] / 2 + 100]])
-dst = np.float32(
-    [[(img_size[0] / 4), 0],
-    [(img_size[0] / 4), img_size[1]],
-    [(img_size[0] * 3 / 4), img_size[1]],
-    [(img_size[0] * 3 / 4), 0]])
+    top = math.floor(h * .72)
+    close_left = math.floor(w * .15)
+    close_right = math.floor(w * .86)
+    far_left = math.floor(w * .37)
+    far_right = math.floor(w * .63)
+```
 
+dest(w=width):
+```
+    top_left = w * .25
+    topr_pct = .75
+    top_right = w * topr_pct
 ```
 This resulted in the following source and destination points:
 
-| Source        | Destination   | 
-|:-------------:|:-------------:| 
-| 585, 460      | 320, 0        | 
-| 203, 720      | 320, 720      |
-| 1127, 720     | 960, 720      |
-| 695, 460      | 960, 0        |
+```
+SRC=[[  473.   532.]
+ [  832.   532.]
+ [  128.   719.]
+ [ 1126.   719.]]
+DEST=[[ 320.  540.]
+ [ 960.  540.]
+ [ 320.  720.]
+ [ 960.  720.]]
+```
 
-I verified that my perspective transform was working as expected by drawing the `src` and `dst` points onto a test image and its warped counterpart to verify that the lines appear parallel in the warped image.
+![Transformed Image][transformed]
 
-![alt text][image4]
+####3. Describe how (and identify where in your code) you used color transforms, gradients or other methods to create a thresholded binary image.  Provide an example of a binary image result.
+I used a combination of color and gradient thresholds to generate a binary image (thresholding steps in `thresholds.py`).  Here's an example of my output for this step. 
+
+![Binary Threshold Combo][thresh]
+
 
 ####4. Describe how (and identify where in your code) you identified lane-line pixels and fit their positions with a polynomial?
 
