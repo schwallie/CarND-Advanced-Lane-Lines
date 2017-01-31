@@ -93,7 +93,7 @@ In `draw_lanes.py` I used `numpy.polyfit` to fit the lines, and used `cv2.fillPo
 
 ####5. Describe how (and identify where in your code) you calculated the radius of curvature of the lane and the position of the vehicle with respect to center.
 
-I did this in lines # through # in my code in `histogram_img_search.py`
+I did this in `histogram_img_search.py` in the `get_center_radius()` function
 
 ####6. Provide an example image of your result plotted back down onto the road such that the lane area is identified clearly.
 
