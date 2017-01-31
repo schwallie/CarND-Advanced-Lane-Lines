@@ -29,3 +29,11 @@ threshold_configs = {'sobel_min': 20,
                      'sobel_max': 100,
                      's_img_min': 140,
                      's_img_max': 256}
+
+# Histogram Image Search Configs
+hist_configs = {'nwindows': 9,
+                }
+
+# Video Config
+lane_configs = {'min_width': 400,
+              'max_width': 650}

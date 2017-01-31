@@ -1,8 +1,10 @@
 import cv2
 
 import config
+import histogram_img_search
 import persp_transform
 import thresholds
+import draw_lanes
 
 class Pipeline(object):
     def __init__(self, override_calibration=False, test_img='test_images/straight_lines1.jpg'):
@@ -15,6 +17,24 @@ class Pipeline(object):
             c = calibrate_camera.Calibrate()
             self.mtx, self.dist = c.calibrate()
         self.test_img = test_img
+        self.good_lanes = []
+        self.wide_lanes = []
+        self.narrow_lanes = []
+
+    def save_lanes(self, left, right):
+        """
+        Save lanes for videos, so we can use previous lane
+        if/when we run into a bad image
+        :param img:
+        :param good_lane:
+        :return:
+        """
+        if abs(left - right) > config.lane_configs['max_width']:
+            self.wide_lanes.append([left, right])
+        elif abs(left - right) < config.lane_configs['min_width']:
+            self.narrow_lanes.append([left, right])
+        else:
+            self.good_lanes.append([left, right])
 
     def main(self, img=None):
         """
@@ -29,11 +49,11 @@ class Pipeline(object):
         [X] Camera Calibration
         [X] Distortion Correction
         [X] Perspective Transform
-        4. Color and Gradient Threshold
-        5. Detect Lane Lines
-        6. Determine Lane Curvature
-        7. Impose Lane Boundaries on Original Image
-        8. Output Visual Display of Lane Boundaries and Numerical Estimation of Lane Curvature and Vehicle Position
+        [X] Color and Gradient Threshold
+        [X] Detect Lane Lines
+        [X] Determine Lane Curvature
+        [X] Impose Lane Boundaries on Original Image
+        [X] Output Visual Display of Lane Boundaries and Numerical Estimation of Lane Curvature and Vehicle Position
 
         From Kostas:
         - No lane peaks from histogram:
@@ -65,16 +85,33 @@ class Pipeline(object):
         First quantity (ensure i have data, if not get from past frame), then quality (ensure they are compatible, first with each other then with previous frame)
         :return:
         """
+
         if img is None:
             img = cv2.imread(self.test_img)
         # Apply a distortion correction to raw images.
         undistorted = cv2.undistort(img, self.mtx, self.dist, None, self.mtx)
         # Perspective Transform
         persp = persp_transform.get_warped_perspective(undistorted)
-        thresh = thresholds.thresh_pipeline(persp)
-        return persp, thresh
+        # Thresholding
+        thresh = thresholds.pipeline(persp)
+        polys, leftx, lefty, rightx, righty, leftx_base, rightx_base \
+            = histogram_img_search.get_window_for_lane(thresh,
+                                                       last_good_lane=self.good_lanes[-1] if self.good_lanes else None)
+        # Do a histogram search
+        self.save_lanes(leftx_base, rightx_base)
+        out_img = draw_lanes.draw_on_orig(thresh, undistorted, leftx, lefty, rightx, righty)
+        # left_search_x, right_search_x = self.correct_bad_lanes(left_search_x, right_search_x)
+        return out_img
+
+
+def vid_pipe(path='project_video.mp4'):
+    from moviepy.editor import VideoFileClip
+    clip = VideoFileClip(path)
+    p = Pipeline()
+    output = clip.fl_image(p.main)
+    output.write_videofile('project_video_annotated.mp4', audio=False)
+    return p
 
 
 if __name__ == '__main__':
-    p = Pipeline()
-    p.main()
+    vid_pipe()

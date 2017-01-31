@@ -15,12 +15,12 @@ The goals / steps of this project are the following:
 
 [checkerboard]: ./camera_cal_final/checkerboard_undistorted.png "Checkerboard"
 [undistorted]:  ./camera_cal_final/test_undistorted_plot.png "Undistorted"
-[transformed]: ./examples/persp_transform.png "Road Transformed"
-[thresh]: ./examples/threshold.png "Thresholded Image"
-[image4]: ./examples/warped_straight_lines.jpg "Warp Example"
-[image5]: ./examples/color_fit_lines.jpg "Fit Visual"
-[image6]: ./examples/example_output.jpg "Output"
-[video1]: ./project_video.mp4 "Video"
+[transformed]: ./output_images/persp_transform.png "Road Transformed"
+[thresh]: ./output_images/threshold.png "Thresholded Image"
+[diff]: ./output_images/diff_bw_lanes.png "Difference Between Lanes"
+[final]: ./output_images/final.png "Output"
+[image6]: ./output_images/example_output.jpg "Output"
+[video1]: ./project_video_annotated.mp4 "Video"
 
 
 ###Camera Calibration
@@ -76,14 +76,18 @@ DEST=[[ 320.  540.]
 ![Transformed Image][transformed]
 
 ####3. Describe how (and identify where in your code) you used color transforms, gradients or other methods to create a thresholded binary image.  Provide an example of a binary image result.
-I used a combination of color and gradient thresholds to generate a binary image (thresholding steps in `thresholds.py`).  Here's an example of my output for this step. 
+I used a combination of color and gradient thresholds to generate a binary image (thresholding steps in `thresholds.py`).  I learned a lot from Slack + Forums + others when figuring out what kind of thresholds to use for this particular part.  
+
+Here's an example of my output for this step. 
 
 ![Binary Threshold Combo][thresh]
 
 
 ####4. Describe how (and identify where in your code) you identified lane-line pixels and fit their positions with a polynomial?
 
-Then I did some other stuff and fit my lane lines with a 2nd order polynomial kinda like this:
+In `histogram_img_search.py` I used a sliding window up the image to identify peaks in the image histogram where lines were present. This built out a large list of points that were likely to be lines for my eventual fitting of the line.
+
+In `draw_lanes.py` I used `numpy.polyfit` to fit the lines, and used `cv2.fillPoly()` to fill the lanes on the image
 
 ![alt text][image5]
 
@@ -95,7 +99,7 @@ I did this in lines # through # in my code in `my_other_file.py`
 
 I implemented this step in lines # through # in my code in `yet_another_file.py` in the function `map_lane()`.  Here is an example of my result on a test image:
 
-![alt text][image6]
+![Output][final]
 
 ---
 
@@ -104,6 +108,8 @@ I implemented this step in lines # through # in my code in `yet_another_file.py`
 ####1. Provide a link to your final video output.  Your pipeline should perform reasonably well on the entire project video (wobbly lines are ok but no catastrophic failures that would cause the car to drive off the road!).
 
 Here's a [link to my video result](./project_video.mp4)
+
+![Histogram of Widths of Lanes][diff]
 
 ---
 

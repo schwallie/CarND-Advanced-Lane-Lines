@@ -6,7 +6,7 @@ import config
 
 # Use color transforms, gradients, etc., to create a thresholded binary image.
 
-def thresh_pipeline(img):
+def pipeline(img):
     """
     Pipeline for a combined threshold pipeline,
     thresholds found from testing different options
@@ -17,10 +17,10 @@ def thresh_pipeline(img):
     hls = cv2.cvtColor(img, cv2.COLOR_RGB2HLS)
     grey = cv2.cvtColor(img, cv2.COLOR_RGB2GRAY)
     s_img = hls[:, :, 2]
-    sobelx_simg = thresholded_sobel_x(s_img)
-    sobelx_greyimg = thresholded_sobel_x(grey)
+    sobelx_on_simg = thresholded_sobel_x(s_img)
+    sobelx_on_greyimg = thresholded_sobel_x(grey)
     thresh = threshold(s_img, config.threshold_configs['s_img_min'], config.threshold_configs['s_img_max'])
-    return combined(sobelx_greyimg, sobelx_simg, thresh)
+    return combined(sobelx_on_greyimg, sobelx_on_simg, thresh)
 
 
 def combined(sobel_x, sobelx_simg, s_thresh):

@@ -4,12 +4,15 @@ import math
 import config
 
 
-def get_warped_perspective(img):
+def get_warped_perspective(img, reverse_persp=False):
     w = img.shape[1]
     h = img.shape[0]
     src = get_src(w, h)
     dest = get_dest(w, h)
-    matrix = cv2.getPerspectiveTransform(src, dest)
+    if reverse_persp:
+        matrix = cv2.getPerspectiveTransform(dest, src)
+    else:
+        matrix = cv2.getPerspectiveTransform(src, dest)
     flipped = img.shape[0:2][::-1]
     return cv2.warpPerspective(img, matrix, flipped)
 
@@ -44,3 +47,4 @@ def get_dest(w, h):
          [top_right, h * topr_pct],
          [top_left, h],
          [top_right, h]])
+
