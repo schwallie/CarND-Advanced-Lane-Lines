@@ -97,6 +97,7 @@ class Pipeline(object):
         polys, leftx, lefty, rightx, righty, leftx_base, rightx_base \
             = histogram_img_search.get_window_for_lane(thresh,
                                                        last_good_lane=self.good_lanes[-1] if self.good_lanes else None)
+        # cv2.imwrite('polys.png', polys)
         # Do a histogram search
         self.save_lanes(leftx_base, rightx_base)
         out_img = draw_lanes.draw_on_orig(thresh, undistorted, leftx, lefty, rightx, righty)

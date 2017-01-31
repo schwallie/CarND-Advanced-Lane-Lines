@@ -19,7 +19,7 @@ The goals / steps of this project are the following:
 [thresh]: ./output_images/threshold.png "Thresholded Image"
 [diff]: ./output_images/diff_bw_lanes.png "Difference Between Lanes"
 [final]: ./output_images/final.png "Output"
-[image6]: ./output_images/example_output.jpg "Output"
+[polys]: ./output_images/polys.png "Polygons"
 [video1]: ./project_video_annotated.mp4 "Video"
 
 
@@ -89,15 +89,15 @@ In `histogram_img_search.py` I used a sliding window up the image to identify pe
 
 In `draw_lanes.py` I used `numpy.polyfit` to fit the lines, and used `cv2.fillPoly()` to fill the lanes on the image
 
-![alt text][image5]
+![Polygons for lane][polys]
 
 ####5. Describe how (and identify where in your code) you calculated the radius of curvature of the lane and the position of the vehicle with respect to center.
 
-I did this in lines # through # in my code in `my_other_file.py`
+I did this in lines # through # in my code in `histogram_img_search.py`
 
 ####6. Provide an example image of your result plotted back down onto the road such that the lane area is identified clearly.
 
-I implemented this step in lines # through # in my code in `yet_another_file.py` in the function `map_lane()`.  Here is an example of my result on a test image:
+I implemented this step in lines # through # in my code in `draw_lines.py`.  Here is an example of my result on a test image:
 
 ![Output][final]
 
@@ -107,9 +107,8 @@ I implemented this step in lines # through # in my code in `yet_another_file.py`
 
 ####1. Provide a link to your final video output.  Your pipeline should perform reasonably well on the entire project video (wobbly lines are ok but no catastrophic failures that would cause the car to drive off the road!).
 
-Here's a [link to my video result](./project_video.mp4)
+Here's a [link to my video result](https://youtu.be/YWqRrVOZubU)
 
-![Histogram of Widths of Lanes][diff]
 
 ---
 
@@ -117,4 +116,6 @@ Here's a [link to my video result](./project_video.mp4)
 
 ####1. Briefly discuss any problems / issues you faced in your implementation of this project.  Where will your pipeline likely fail?  What could you do to make it more robust?
 
-Here I'll talk about the approach I took, what techniques I used, what worked and why, where the pipeline might fail and how I might improve it if I were going to pursue this project further.  
+I had some lanes give weird bottom_x and bottom_y places, so I used previous lanes to make sure that it searched the right areas. I did this in `histogram_img_search.py` I set up the parameters of lane width from the histogram below. I could also check curvature of the lane to fix the top of the lane (near the horizon) not always being proper and sometimes being "off"
+
+![Histogram of Widths of Lanes][diff]
