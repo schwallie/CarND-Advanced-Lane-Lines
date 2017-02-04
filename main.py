@@ -1,13 +1,15 @@
 import cv2
 
 import config
+import draw_lanes
 import histogram_img_search
 import persp_transform
 import thresholds
-import draw_lanes
+
 
 class Pipeline(object):
-    def __init__(self, override_calibration=False, test_img='test_images/straight_lines1.jpg'):
+    def __init__(self, override_calibration=False, test_img='test_images/straight_lines1.jpg',
+                 save_pipeline=False):
         if not override_calibration:
             self.mtx = config.mtx
             self.dist = config.dist
@@ -17,9 +19,13 @@ class Pipeline(object):
             c = calibrate_camera.Calibrate()
             self.mtx, self.dist = c.calibrate()
         self.test_img = test_img
+        self.lcurve_currents = {}
+        self.rcurve_currents = {}
         self.good_lanes = []
         self.wide_lanes = []
         self.narrow_lanes = []
+        self.save_pipeline = save_pipeline
+        self.frame_num = 1
 
     def save_lanes(self, left, right):
         """
@@ -94,14 +100,37 @@ class Pipeline(object):
         persp = persp_transform.get_warped_perspective(undistorted)
         # Thresholding
         thresh = thresholds.pipeline(persp)
-        polys, leftx, lefty, rightx, righty, leftx_base, rightx_base \
+        if self.save_pipeline:
+            cv2.imwrite('thresh.png', thresh)
+        polys, leftx, lefty, rightx, righty, leftx_base, rightx_base, left_curve, right_curve, leftx_current_lst, rightx_current_lst \
             = histogram_img_search.get_window_for_lane(thresh,
                                                        last_good_lane=self.good_lanes[-1] if self.good_lanes else None)
-        # cv2.imwrite('polys.png', polys)
+        self.lcurve_currents[self.frame_num] = leftx_current_lst
+        self.rcurve_currents[self.frame_num] = rightx_current_lst
+        if self.save_pipeline:
+            print(leftx)
+            print(rightx)
+            cv2.imwrite('polys.png', polys)
+        #
         # Do a histogram search
         self.save_lanes(leftx_base, rightx_base)
         out_img = draw_lanes.draw_on_orig(thresh, undistorted, leftx, lefty, rightx, righty)
+        if self.save_pipeline:
+            cv2.imwrite('out_img.png', out_img)
         # left_search_x, right_search_x = self.correct_bad_lanes(left_search_x, right_search_x)
+        # Print curvature and center offset on an image
+        stats_text = 'L: {0:.0f}m, R: {1:.0f}m, Frame:{2}'.format(left_curve, right_curve, self.frame_num)
+        text_offset = 50
+        text_shift = 1
+        font = cv2.FONT_HERSHEY_SIMPLEX
+        cv2.putText(out_img, stats_text, \
+                    (text_offset + text_shift, undistorted.shape[0] - text_offset + text_shift), \
+                    font, 1, (0, 0, 0), 2)
+        cv2.putText(out_img, stats_text, (text_offset, undistorted.shape[0] - text_offset), \
+                    font, 1, (255, 255, 255), 2)
+        self.frame_num += 1
+        if 1010 > self.frame_num > 975:
+            cv2.imwrite('bad_images/bad_frame_{0}.png'.format(self.frame_num), img)
         return out_img
 
 
