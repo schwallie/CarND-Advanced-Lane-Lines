@@ -114,12 +114,11 @@ class Pipeline(object):
         #
         # Do a histogram search
         self.save_lanes(leftx_base, rightx_base)
-        out_img = draw_lanes.draw_on_orig(thresh, undistorted, leftx, lefty, rightx, righty)
-        if self.save_pipeline:
-            cv2.imwrite('out_img.png', out_img)
+        out_img, center = draw_lanes.draw_on_orig(thresh, undistorted, leftx, lefty, rightx, righty)
         # left_search_x, right_search_x = self.correct_bad_lanes(left_search_x, right_search_x)
         # Print curvature and center offset on an image
-        stats_text = 'L: {0:.0f}m, R: {1:.0f}m, Frame:{2}'.format(left_curve, right_curve, self.frame_num)
+        stats_text = 'Curvature: {0}, Dist From Center: {1}, Frame: {2}'.format(
+            int((left_curve + right_curve) / 2), round(center*3.7/700,1), self.frame_num)
         text_offset = 50
         text_shift = 1
         font = cv2.FONT_HERSHEY_SIMPLEX
@@ -129,6 +128,8 @@ class Pipeline(object):
         cv2.putText(out_img, stats_text, (text_offset, undistorted.shape[0] - text_offset), \
                     font, 1, (255, 255, 255), 2)
         self.frame_num += 1
+        if self.save_pipeline:
+            cv2.imwrite('out_img.png', out_img)
         if 1010 > self.frame_num > 975:
             cv2.imwrite('bad_images/bad_frame_{0}.png'.format(self.frame_num), img)
         return out_img

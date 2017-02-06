@@ -19,11 +19,20 @@ def pipeline(img):
     s_img = hls[:, :, 2]
     sobelx_on_simg = thresholded_sobel_x(s_img)
     sobelx_on_greyimg = thresholded_sobel_x(grey)
+    r_thresh = rgb_binary_threshold_r(img)
     thresh = threshold(s_img, config.threshold_configs['s_img_min'], config.threshold_configs['s_img_max'])
-    return combined(sobelx_on_greyimg, sobelx_on_simg, thresh)
+    return combined(sobelx_on_greyimg, sobelx_on_simg, thresh, r_thresh)
 
 
-def combined(sobel_x, sobelx_simg, s_thresh):
+def rgb_binary_threshold_r(src_img, thresh=(200, 255)):
+    """Return a binary threshold image of the R channel in RGB color space."""
+    R = src_img[:, :, 0]
+    binary = np.zeros_like(R)
+    binary[(R > thresh[0]) & (R <= thresh[1])] = 1
+    return binary
+
+
+def combined(sobel_x, sobelx_simg, s_thresh, r_thresh):
     """
     Return combined threshold
     :param sobel_x:
@@ -32,7 +41,7 @@ def combined(sobel_x, sobelx_simg, s_thresh):
     :return:
     """
     combined = np.zeros_like(sobel_x, dtype=np.uint8)
-    combined[(sobel_x > 0) | (sobelx_simg > 0) | (s_thresh > 0)] = 255
+    combined[(sobel_x > 0) | (sobelx_simg > 0) | (s_thresh > 0) | (r_thresh > 0)] = 255
     return combined
 
 

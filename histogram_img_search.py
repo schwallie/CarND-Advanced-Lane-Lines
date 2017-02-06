@@ -87,6 +87,7 @@ def get_window_for_lane(binary_warped, last_good_lane=None):
     rightx = nonzerox[right_lane_inds]
     righty = nonzeroy[right_lane_inds]
     left_curverad, right_curverad = get_center_radius(lefty, leftx, righty, rightx)
+
     return out_img, leftx, lefty, rightx, righty, leftx_base, rightx_base, left_curverad, right_curverad, leftx_current_lst, rightx_current_lst
 
 

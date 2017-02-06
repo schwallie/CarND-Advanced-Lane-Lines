@@ -15,7 +15,10 @@ def draw_on_orig(binary_warped, undistorted, leftx, lefty, rightx, righty):
     # Fit a second order polynomial to pixel positions in each fake lane line
     left_fitx = left_fit[0] * ploty ** 2 + left_fit[1] * ploty + left_fit[2]
     right_fitx = right_fit[0] * ploty ** 2 + right_fit[1] * ploty + right_fit[2]
-
+    # Calculate the position of the vehicle
+    rightx_int = right_fit[0] * 720 ** 2 + right_fit[1] * 720 + right_fit[2]
+    leftx_int = left_fit[0] * 720 ** 2 + left_fit[1] * 720 + left_fit[2]
+    center = abs(640 - ((rightx_int+leftx_int)/2))
     # Create an image to draw the lines on
     warp_zero = np.zeros_like(binary_warped).astype(np.uint8)
     color_warp = np.dstack((warp_zero, warp_zero, warp_zero))
@@ -31,4 +34,4 @@ def draw_on_orig(binary_warped, undistorted, leftx, lefty, rightx, righty):
     # Combine the result with the original image
     final = cv2.addWeighted(undistorted, 1, newwarp, 0.3, 0)
     # cv2.imwrite('final_ud.png', final)
-    return final
+    return final, center
